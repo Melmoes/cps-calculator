@@ -1,17 +1,8 @@
-// CPS Calculator 1.5.15 — defensive init + verbose logs
+// CPS Calculator 1.6.0 — defensive init + verbose logs
 (function(){
 // ---- UI helpers (tabs, factors, activity, config) ----
 const UI = { history: [] };
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach(b=>{
-    const active = b.dataset.tab === name;
-    b.classList.toggle('is-active', active);
-    b.setAttribute('aria-selected', String(active));
-  });
-  document.querySelectorAll('.pane').forEach(p=>{
-    p.classList.toggle('is-active', p.id === `pane-${name}`);
-  });
-}
+
 
 function wireRecalc(client, mapping, settings){
   const btn = document.getElementById('recalcBtn');
@@ -40,9 +31,7 @@ function wireRecalc(client, mapping, settings){
     }
   });
 }
-function wireTabs(){
-  document.querySelectorAll('.tab').forEach(b=> b.addEventListener('click', ()=> switchTab(b.dataset.tab)));
-}
+
 function renderFactors(f){
   const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
   set('f-impact-val', f.impactVal ?? '—');     set('f-impact-pts', `+${f.impactPts||0}`);
@@ -178,7 +167,6 @@ async function serverWriteCps(client, cpsFieldId, cpsValue){
     await client.request({
       url: `/api/v2/tickets/${ticketId}.json`,
       type: 'PUT',
-      oauth: true,
       contentType: 'application/json',
       data: JSON.stringify({
         ticket: { custom_fields: [{ id: cpsFieldId, value: cpsValue }] }
@@ -360,7 +348,7 @@ function wireFieldChangeListeners(client, mapping, settings){
 
       // Map
       const mapping = await mapFields(client);
-    try{ wireTabs(); renderConfig(mapping, settings); }catch(_){}
+    try{ renderConfig(mapping, settings); }catch(_){}
       wireFieldChangeListeners(client, mapping, settings);
 
       
