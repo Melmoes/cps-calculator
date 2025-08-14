@@ -1,33 +1,83 @@
 # Customer Priority Score (CPS) – Zendesk App
 
-A self-provisioning sidebar app that calculates CPS in real time and writes it to a ticket field.
+Real‑time Customer Priority Score in the ticket sidebar. The app computes a weighted score from ticket context and writes it back to a custom integer field so agents, SLAs, and views can sort by impact and urgency.
 
-## What it does
-- Creates (or maps) these fields by **title** on first run (admin required):
-  - **Impact** (dropdown: High, Medium, Low)
-  - **Urgency** (dropdown: High, Medium, Low)
-  - **Security flag** (checkbox)
-  - **Manager override** (integer 0–5)
-  - **Customer Priority Score** (integer, calculated)
-- Watches field changes and recomputes CPS using your weights:
-  - Impact: 12/8/4
-  - Urgency: 12/8/4
-  - Time open: >7d=6, 3–7d=4, 1–2d=2, <1d=0
-  - Security flag: +4
-  - Manager override: +0..5
-- Updates the CPS field immediately.
+## Features
+- **Auto‑provision or map fields** on first admin run (see Field Provisioning)
+- **Live recalculation** when Impact, Priority, Security flag, or Override changes
+- **Writes to ticket** immediately using the agent’s session (no OAuth required)
+- **Safe writes**: debounced/queued/retried to avoid Zendesk save races
+- **Diagnostics** pane and recent activity trail
+- **Dark mode** and compact UI
 
-## Install
-1. Download the ZIP.
-2. In Zendesk, go to **Admin Center → Apps and integrations → Zendesk Support apps**.
-3. Click **Upload private app** and upload the ZIP.
-4. Install. Ensure **an Admin** opens a ticket so the app can create fields if missing.
+## Scoring model (default)
+- **Impact**: High 12 / Medium 8 / Low 4
+- **Urgency (Priority)**: Urgent 12 / High 8 / Normal 4 / Low 0
+- **Time open**: >7d 6 / 3–7d 4 / 1–2d 2 / <1d 0
+- **Security flag**: +4 if checked
+- **Manager override**: +1 … +5 (1–5)
 
-## Notes
-- If a non-admin opens first, the app runs in mapping-only mode. An admin can open any ticket later to auto-create fields.
-- The app keys off **field titles**. You can rename them in `main.js` under `FIELD_TITLES` if needed.
-- Option order controls weights (12/8/4); reorder in Admin if desired.
+Weights for Priority can be adjusted via app settings (see Configuration).
 
-## Dev
-- Uses framework v2 and ZAFClient from Zendesk runtime.
-- To modify, unzip, edit files, re-zip, and upload again.
+## Installation
+1. Download the latest ZIP from `releases/` (for example `releases/cps-calculator-1.6.1.zip`).
+2. In Zendesk, open **Admin Center → Apps and integrations → Zendesk Support apps**.
+3. Click **Upload private app** and select the ZIP.
+4. After install, open any ticket as an **Admin** once so the app can create missing fields automatically.
+
+> Tip: If the app appears but fields are missing, simply open a ticket as an Admin to trigger auto‑provisioning.
+
+## Field provisioning and mapping
+On first admin run, the app tries to detect existing fields or create them when missing. It looks for:
+
+- Impact dropdown: options tagged like `cps_impact_high|medium|low` or titles containing “Impact”
+- Security flag: a checkbox with tag `cps_security_flag`
+- Manager override: a dropdown with values `cps_override_1..5` or a title containing “CPS Manager override”
+- CPS score: an integer field with title containing “CPS” or “Customer Priority Score”
+
+Fallback metadata in `requirements.json` documents the expected shapes. The app keys off field titles and tags; you can rename titles in Zendesk if you prefer, as long as the tags/options remain recognizable.
+
+## Configuration
+These settings are provided via app parameters (set at install time):
+
+- `priority_points_urgent` (default 12)
+- `priority_points_high` (default 8)
+- `priority_points_normal` (default 4)
+- `priority_points_low` (default 0)
+- `impact_allowed_groups` (optional, comma‑separated)
+- `security_flag_allowed_groups` (optional, comma‑separated)
+- `manager_override_allowed_groups` (optional, comma‑separated)
+
+When an allowed‑groups list is provided, only members of those groups may change the corresponding field.
+
+## Authentication
+- Uses the **agent session** provided by Zendesk runtime. No OAuth configuration is required.
+
+## Troubleshooting
+- **App icon not visible**: Ensure you’re using the packaged ZIP and not a folder upload. Icons are bundled in `assets/` (`icon.png`, `icon_small.png`, plus logos). Avoid adding a custom `icons` block to `manifest.json` unless you also update file paths.
+- **Fields didn’t create**: Open a ticket as an **Admin** to allow the app to create missing fields. Non‑admin runs only map existing fields.
+- **Score not updating**: Change Impact/Priority and watch Diagnostics pane. If writes conflict with agent saves, the safe‑write layer will retry. Ensure your CPS field is an Integer and not restricted by form/permissions.
+- **Layout issues**: Clear browser cache or reload the app iframe. The UI auto‑resizes; Diagnostics will display if any init step fails.
+
+## Development
+- Framework: Zendesk Apps Framework v2 (ZAFClient is loaded from Zendesk runtime)
+- Key files: `assets/index.html`, `assets/main.js`, `assets/style.css`, `assets/safe-api.js`
+- Safe writes: `assets/safe-api.js` exposes `window.safeApi.safeUpdate()` used by a client wrapper to queue/debounce/retry ticket PUTs
+
+### Local edits
+1. Modify files under `assets/`.
+2. Zip the project root contents (exclude `.git`, `__MACOSX`, `.DS_Store`).
+3. Upload the ZIP as a private app.
+
+Example packaging command from the repo root:
+
+```bash
+zip -r releases/cps-calculator-<version>.zip . -x "*.DS_Store" "*__MACOSX*" "*.git*" "*.zip"
+```
+
+## Releases
+- Built packages are kept in the `releases/` folder (e.g., `cps-calculator-1.6.1.zip`).
+- Versioning follows **SemVer** for app changes.
+
+## License
+Copyright © iEnterprise. All rights reserved.
