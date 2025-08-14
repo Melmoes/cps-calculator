@@ -1,4 +1,4 @@
-// CPS Calculator 1.6.0 — defensive init + verbose logs
+// CPS Calculator 1.6.1 — defensive init + verbose logs
 (function(){
 // ---- UI helpers (tabs, factors, activity, config) ----
 const UI = { history: [] };

@@ -2,7 +2,7 @@
 :root{--bg:#fff;--ink:#0f172a;--muted:#6b7280;--brand:#0ea5e9;--chip-bg:#eef2ff;--chip-ink:#3730a3;--card:#ffffff;--line:#e5e7eb}
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);background:var(--bg);padding:12px}
 .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.hdr-left{display:flex;gap:8px;align-items:center}.app-title{font-weight:800;font-size:16px}
+.hdr-left{display:flex;gap:8px;align-items:center}.app-logo{width:24px;height:24px;object-fit:contain}
 .chip{font-size:12px;padding:4px 8px;border-radius:999px;background:var(--chip-bg);color:var(--chip-ink)}
 .hdr-right{display:flex;gap:8px;align-items:center}.muted{color:var(--muted);font-size:12px}
 .btn{font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:#f8fafc;cursor:pointer}
@@ -105,7 +105,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);
 
 /* Fixed label */
 .score-card .breakdown::after{
-  content: "Customer Priority Score";
+  content: "Priority Score";
   display: block;
   margin-top: 8px;         /* spacing under number */
   font-weight: 700;
@@ -128,7 +128,8 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);
 .panes{ border:none; background:transparent; padding:0; box-shadow:none; }
 
 /* Section headers via CSS (avoid HTML changes) */
-#pane-score::before{ content:"CPS Score"; display:block; font-weight:700; font-size:14px; margin-bottom:8px; color:var(--ink); }
+/* Hide the redundant Score header for a cleaner top section */
+#pane-score::before{ content:""; display:none; }
 #pane-factors::before{ content:"Factors"; display:block; font-weight:700; font-size:14px; margin-bottom:8px; color:var(--ink); }
 #pane-activity::before{ content:"Recent Activity"; display:block; font-weight:700; font-size:14px; margin-bottom:8px; color:var(--ink); }
 #pane-config::before{ content:"Configuration (read-only)"; display:block; font-weight:700; font-size:14px; margin-bottom:8px; color:var(--ink); }
