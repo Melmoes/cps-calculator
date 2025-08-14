@@ -1,0 +1,6 @@
+{
+  "app": {
+    "name": "Customer Priority Score",
+    "description": "Calculates and updates the CPS field automatically in tickets."
+  }
+}

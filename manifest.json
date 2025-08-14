@@ -1,0 +1,74 @@
+{
+  "name": "Customer Priority Score",
+  "author": {
+    "name": "Melwin Moeskops",
+    "email": "melwin.moeskops@ienterprise.com"
+  },
+  "version": "1.5.26",
+  "frameworkVersion": "2.0",
+  "defaultLocale": "en",
+  "location": {
+    "support": {
+      "ticket_sidebar": {
+        "url": "assets/index.html"
+      }
+    }
+  },
+  "singleInstall": true,
+  "parameters": [
+    {
+      "name": "priority_points_urgent",
+      "type": "number",
+      "required": true,
+      "default": 12,
+      "label": "Points for Urgent Priority"
+    },
+    {
+      "name": "priority_points_high",
+      "type": "number",
+      "required": true,
+      "default": 8,
+      "label": "Points for High Priority"
+    },
+    {
+      "name": "priority_points_normal",
+      "type": "number",
+      "required": true,
+      "default": 4,
+      "label": "Points for Normal Priority"
+    },
+    {
+      "name": "priority_points_low",
+      "type": "number",
+      "required": true,
+      "default": 0,
+      "label": "Points for Low Priority"
+    },
+    {
+      "name": "impact_allowed_groups",
+      "type": "text",
+      "label": "Groups allowed to change Impact (comma-separated)"
+    },
+    {
+      "name": "security_flag_allowed_groups",
+      "type": "text",
+      "label": "Groups allowed to change Security Flag (comma-separated)"
+    },
+    {
+      "name": "manager_override_allowed_groups",
+      "type": "text",
+      "label": "Groups allowed to change Manager Override (comma-separated)"
+    },
+    {
+      "name": "access_token",
+      "type": "oauth"
+    }
+  ],
+  "oauth": {
+    "client_id": "cps_calculator",
+    "client_secret": "bf70882066527b68411f1a15c0fe8e7386458f1701ae73c214f27e5113a22b2f",
+    "authorize_uri": "https://ienterprise.zendesk.com/oauth/authorizations/new",
+    "access_token_uri": "https://ienterprise.zendesk.com/oauth/tokens",
+    "scope": "read write"
+  }
+}

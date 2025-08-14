@@ -1,0 +1,58 @@
+{
+  "ticket_fields": {
+    "cps_impact": {
+      "type": "tagger",
+      "title": "CPS Impact",
+      "custom_field_options": [
+        {
+          "name": "High",
+          "value": "cps_impact_high"
+        },
+        {
+          "name": "Medium",
+          "value": "cps_impact_medium"
+        },
+        {
+          "name": "Low",
+          "value": "cps_impact_low"
+        }
+      ]
+    },
+    "cps_security": {
+      "type": "checkbox",
+      "title": "CPS Security flag",
+      "tag": "cps_security_flag"
+    },
+    "cps_override": {
+      "type": "tagger",
+      "title": "CPS Manager override",
+      "custom_field_options": [
+        {
+          "name": "1",
+          "value": "cps_override_1"
+        },
+        {
+          "name": "2",
+          "value": "cps_override_2"
+        },
+        {
+          "name": "3",
+          "value": "cps_override_3"
+        },
+        {
+          "name": "4",
+          "value": "cps_override_4"
+        },
+        {
+          "name": "5",
+          "value": "cps_override_5"
+        }
+      ]
+    },
+    "cps_score": {
+      "type": "integer",
+      "title": "CPS",
+      "description": "Customer Priority Score"
+    }
+  }
+}
