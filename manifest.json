@@ -4,7 +4,7 @@
     "name": "Melwin Moeskops",
     "email": "melwin.moeskops@ienterprise.com"
   },
-  "version": "1.5.26",
+  "version": "1.6.0",
   "frameworkVersion": "2.0",
   "defaultLocale": "en",
   "location": {
@@ -58,17 +58,6 @@
       "name": "manager_override_allowed_groups",
       "type": "text",
       "label": "Groups allowed to change Manager Override (comma-separated)"
-    },
-    {
-      "name": "access_token",
-      "type": "oauth"
     }
-  ],
-  "oauth": {
-    "client_id": "cps_calculator",
-    "client_secret": "bf70882066527b68411f1a15c0fe8e7386458f1701ae73c214f27e5113a22b2f",
-    "authorize_uri": "https://ienterprise.zendesk.com/oauth/authorizations/new",
-    "access_token_uri": "https://ienterprise.zendesk.com/oauth/tokens",
-    "scope": "read write"
-  }
+  ]
 }
