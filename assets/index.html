@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="style.css" rel="stylesheet"/>
+<title>CPS Calculator</title>
+</head>
+<body>
+<header class="hdr">
+<div class="hdr-left">
+<div class="app-title">CPS</div>
+<div aria-live="polite" class="chip" id="statusPill">Initializing…</div>
+</div>
+<div class="hdr-right">
+<button aria-label="Recalculate" class="btn" id="recalcBtn">Recalculate</button>
+<small class="muted" id="lastRun"></small>
+</div>
+</header>
+<nav aria-label="CPS tabs" class="tabs" role="tablist">
+<button aria-selected="true" class="tab is-active" data-tab="score" role="tab">Score</button>
+<button aria-selected="false" class="tab" data-tab="factors" role="tab">Factors</button>
+<button aria-selected="false" class="tab" data-tab="activity" role="tab">Activity</button>
+<button aria-selected="false" class="tab" data-tab="config" role="tab">Config</button>
+<button aria-selected="false" class="tab" data-tab="diag" role="tab">Diagnostics</button>
+</nav>
+<main class="panes">
+<section class="pane is-active" id="pane-score">
+<div class="card score-card">
+<div class="score" id="score">—</div>
+<div aria-label="Customer Priority Score" aria-live="polite" class="breakdown" id="detail">Calculating…</div>
+</div>
+</section>
+<section class="pane" id="pane-factors">
+<div class="grid">
+<div class="card">
+<div class="k-label">Impact</div>
+<div class="k-value"><span class="badge" id="f-impact-val">—</span></div>
+<div class="k-sub"><span class="pts" id="f-impact-pts">+0</span> pts</div>
+</div>
+<div class="card">
+<div class="k-label">Priority</div>
+<div class="k-value"><span class="badge" id="f-priority-val">—</span></div>
+<div class="k-sub"><span class="pts" id="f-priority-pts">+0</span> pts</div>
+</div>
+<div class="card">
+<div class="k-label">Time open</div>
+<div class="k-value"><span class="badge" id="f-time-val">—</span></div>
+<div class="k-sub"><span class="pts" id="f-time-pts">+0</span> pts</div>
+</div>
+<div class="card">
+<div class="k-label">Security flag</div>
+<div class="k-value"><span class="badge" id="f-security-val">—</span></div>
+<div class="k-sub"><span class="pts" id="f-security-pts">+0</span> pts</div>
+</div>
+<div class="card">
+<div class="k-label">Manager override</div>
+<div class="k-value"><span class="badge" id="f-override-val">—</span></div>
+<div class="k-sub"><span class="pts" id="f-override-pts">+0</span> pts</div>
+</div>
+</div>
+<details class="table-wrap">
+<summary>Point model</summary>
+<table class="tbl">
+<thead><tr><th>Factor</th><th>Value</th><th>Points</th></tr></thead>
+<tbody>
+<tr><td>Impact</td><td>High / Medium / Low</td><td>12 / 8 / 4</td></tr>
+<tr><td>Urgency (Priority)</td><td>Urgent / High / Normal / Low</td><td>12 / 8 / 4 / 0</td></tr>
+<tr><td>Time open</td><td>&gt;7d / 3–7d / 1–2d / &lt;1d</td><td>6 / 4 / 2 / 0</td></tr>
+<tr><td>Security flag</td><td>Yes / No</td><td>+4 / +0</td></tr>
+<tr><td>Manager override</td><td>1–5</td><td>+1 … +5</td></tr>
+</tbody>
+</table>
+</details>
+</section>
+<section class="pane" id="pane-activity"><details class="collapsible"><summary>Recent Activity</summary><div class="collapsible-content">
+<ol class="activity" id="activity"></ol>
+</div></details></section>
+<section class="pane" id="pane-config">
+<div class="grid2">
+<div class="card">
+<div class="k-label">Priority points</div>
+<ul class="ul" id="priorityConfig"></ul>
+</div>
+<div class="card">
+<div class="k-label">Allowed groups</div>
+<ul class="ul" id="groupsConfig"></ul>
+</div>
+<div class="card">
+<div class="k-label">Field mapping</div>
+<ul class="ul" id="mappingList"></ul>
+</div>
+<div class="card">
+<div class="k-label">OAuth</div>
+<div class="muted" id="oauthStatus">Authorized after first use</div>
+</div>
+</div>
+</section>
+<section class="pane" id="pane-diag"><details class="collapsible"><summary>Diagnostics</summary><div class="collapsible-content">
+<pre class="diag" id="diag"></pre>
+</div></details></section>
+</main>
+<script src="https://static.zdassets.com/zendesk_app_framework_sdk/2/zaf_sdk.min.js"></script>
+<script src="safe-api.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
