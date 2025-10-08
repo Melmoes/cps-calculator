@@ -80,4 +80,4 @@ zip -r releases/cps-calculator-<version>.zip . -x "*.DS_Store" "*__MACOSX*" "*.g
 - Versioning follows **SemVer** for app changes.
 
 ## License
-Copyright © iEnterprise. All rights reserved.
+All rights reserved.
