@@ -99,11 +99,33 @@ function renderConfig(mapping, settings){
     return (n>=1 && n<=5) ? n : 0;
   }
 
-  const DEFAULT_IMPACT_OPTIONS = [
+const DEFAULT_IMPACT_OPTIONS = [
   { name: 'High', value: 'cps_impact_high' },
   { name: 'Medium', value: 'cps_impact_medium' },
   { name: 'Low', value: 'cps_impact_low' }
 ];
+
+function findImpactLabel(selectedValue, options){
+  if (!selectedValue) return '—';
+  const opts = Array.isArray(options) ? options : [];
+  const match = opts.find(opt => opt && opt.value === selectedValue);
+  return (match && match.name) || String(selectedValue);
+}
+
+function formatPriorityLabel(priority){
+  if (!priority) return '—';
+  return priority.charAt(0).toUpperCase() + priority.slice(1);
+}
+
+function timeOpenBucket(createdAtISO){
+  if (!createdAtISO) return 'Unknown';
+  const days = (Date.now() - new Date(createdAtISO).getTime()) / 86400000;
+  if (Number.isNaN(days)) return 'Unknown';
+  if (days > 7) return '>7 days';
+  if (days >= 3) return '3–7 days';
+  if (days >= 1) return '1–2 days';
+  return '<1 day';
+}
 
 function timeOpenPoints(createdAtISO){
     const days = (Date.now() - new Date(createdAtISO).getTime()) / 86400000;
@@ -164,7 +186,7 @@ async function serverWriteCps(client, cpsFieldId, cpsValue){
   try{
     const t = await client.get('ticket.id');
     const ticketId = t['ticket.id'];
-    await client.request({
+    const request = () => client.request({
       url: `/api/v2/tickets/${ticketId}.json`,
       type: 'PUT',
       contentType: 'application/json',
@@ -172,6 +194,11 @@ async function serverWriteCps(client, cpsFieldId, cpsValue){
         ticket: { custom_fields: [{ id: cpsFieldId, value: cpsValue }] }
       })
     });
+    if (window.safeApi && typeof window.safeApi.safeUpdate === 'function'){
+      await window.safeApi.safeUpdate(request, { key: `ticket-write-${ticketId}-${cpsFieldId}` });
+    } else {
+      await request();
+    }
   }catch(e){
     try{
       const el=document.getElementById('diag');
@@ -279,33 +306,45 @@ function wireFieldChangeListeners(client, mapping, settings){
     const override   = parseOverride(overrideValRaw);
     const cps = impactPts + urgencyPts + timePts + securityPts + override;
 
-    const current = await getCF(client, mapping.cpsFieldId);
-    if (current !== cps){
-      dlog('refresh:write', { prev: current, next: cps });
-      await setCF(client, mapping.cpsFieldId, cps);
-    await serverWriteCps(client, mapping.cpsFieldId, cps);
+    const currentRaw = await getCF(client, mapping.cpsFieldId);
+    const toNumeric = (val) => (val === null || val === undefined || val === '' ? null : Number(val));
+    const currentNumeric = toNumeric(currentRaw);
+    const nextNumeric = Number.isFinite(cps) ? cps : 0;
+    if (currentNumeric !== nextNumeric){
+      dlog('refresh:write', { prev: currentRaw, next: cps });
+      await setCF(client, mapping.cpsFieldId, nextNumeric);
+      await serverWriteCps(client, mapping.cpsFieldId, nextNumeric);
     }else{
-      dlog('refresh:write:skip', { unchanged: current });
+      dlog('refresh:write:skip', { unchanged: currentRaw });
     }
 
     STATE.last = { impactVal: impactValRaw, securityVal: securityValRaw, overrideVal: overrideValRaw };
     document.getElementById('score').textContent = String(cps);
+
+    const impactLabel = findImpactLabel(impactValRaw, mapping.impactOpts);
+    const priorityLabel = formatPriorityLabel(priority);
+    const timeLabel = timeOpenBucket(createdAt);
+    const overrideLabel = override > 0 ? String(override) : '0';
+    const securityLabel = secTrue ? 'Yes' : 'No';
+    const breakdownText = `Impact +${impactPts}, Priority +${urgencyPts}, Time +${timePts}, Security +${securityPts}, Override +${override}`;
+
+    const detailEl = document.getElementById('detail');
+    if (detailEl){ detailEl.textContent = breakdownText; }
+
     try {
-      const prObj = await client.get('ticket.priority');
-      const priorityVal = prObj['ticket.priority'];
       renderFactors({
-        impactVal: STATE.last && STATE.last.impactVal,
-        impactPts: (typeof impactPts !== 'undefined' ? impactPts : (r && r.impactPts) || 0),
-        priority: priorityVal || null,
-        urgencyPts: (typeof urgencyPts !== 'undefined' ? urgencyPts : (r && r.urgencyPts) || 0),
-        timeLabel: `${(typeof timePts !== 'undefined' ? timePts : (r && r.timePts) || 0)} pts`,
-        timePts: (typeof timePts !== 'undefined' ? timePts : (r && r.timePts) || 0),
-        securityVal: (STATE.last && STATE.last.securityVal) ? 'Yes' : 'No',
-        securityPts: (typeof securityPts !== 'undefined' ? securityPts : (r && r.securityPts) || 0),
-        overrideVal: (STATE.last && STATE.last.overrideVal) ? String(STATE.last.overrideVal) : '0',
-        overridePts: (typeof override !== 'undefined' ? override : (r && r.override) || 0)
+        impactVal: impactLabel,
+        impactPts,
+        priority: priorityLabel,
+        urgencyPts,
+        timeLabel,
+        timePts,
+        securityVal: securityLabel,
+        securityPts,
+        overrideVal: overrideLabel,
+        overridePts: override
       });
-      pushActivity({ cps: (typeof cps !== 'undefined' ? cps : (r && r.cps)), detail: document.getElementById('detail').textContent, at: (new Date()).toLocaleTimeString() });
+      pushActivity({ cps, detail: breakdownText, at: (new Date()).toLocaleTimeString() });
     } catch(_) {}
 
     document.getElementById('lastRun').textContent = `Last run: ${(new Date()).toLocaleString()}`;
@@ -359,6 +398,7 @@ function wireFieldChangeListeners(client, mapping, settings){
 
       client.on('ticket.custom_field_changed', async (e)=>{
         const id = Number(String(e && e.id || '').replace('custom_field_', ''));
+        if (id === mapping.cpsFieldId) return;
         if ([mapping.impactFieldId, mapping.securityFieldId, mapping.overrideFieldId].includes(id)){
           const ov = {};
           if (id === mapping.impactFieldId) ov.impactVal = e.newValue;
