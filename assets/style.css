@@ -1,12 +1,24 @@
 *{box-sizing:border-box}
-:root{--bg:#fff;--ink:#0f172a;--muted:#6b7280;--brand:#0ea5e9;--chip-bg:#eef2ff;--chip-ink:#3730a3;--card:#ffffff;--line:#e5e7eb}
+:root{
+  --bg:#fff;--ink:#0f172a;--muted:#6b7280;--brand:#0ea5e9;
+  --chip-bg:#eef2ff;--chip-ink:#3730a3;--card:#ffffff;--line:#e5e7eb;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.06);
+}
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);background:var(--bg);padding:12px}
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding-bottom:6px;}
 .hdr-left{display:flex;gap:8px;align-items:center}.app-logo{width:24px;height:24px;object-fit:contain}
-.chip{font-size:12px;padding:4px 8px;border-radius:999px;background:var(--chip-bg);color:var(--chip-ink)}
+.chip{border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--chip-bg);color:var(--chip-ink);font-weight:600;font-size:12px}
 .hdr-right{display:flex;gap:8px;align-items:center}.muted{color:var(--muted);font-size:12px}
-.btn{font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:#f8fafc;cursor:pointer}
-.btn:hover{background:#f1f5f9}
+.btn{
+  cursor:pointer;border:1px solid var(--line);background:var(--card);
+  border-radius:var(--radius);padding:6px 12px;box-shadow:var(--shadow);font-size:12px;
+  transition:transform .06s ease,box-shadow .12s ease,filter .12s ease;
+}
+.btn:hover{filter:brightness(.98)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
 
 .panes{border:1px solid var(--line);border-radius:0 10px 10px 10px;background:var(--card);padding:12px}
 .pane{display:none}.pane.is-active{display:block}
@@ -25,24 +37,10 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);
 .activity{margin:0;padding-left:16px}.activity li{font-size:12px;margin:6px 0}
 
 
-/* --- UX polish additions --- */
-.hdr{position:sticky;top:0;background:var(--bg);z-index:2;padding-bottom:6px;}
-.btn{cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card);}
-.btn:hover{filter:brightness(0.98)}
-.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-
-.chip{border:1px solid var(--line);border-radius:999px;padding:2px 8px;background:var(--chip-bg);color:var(--chip-ink);font-size:12px}
-.status-ok{background:#ecfdf5 !important}
-.status-warn{background:#fff7ed !important}
-.status-err{background:#fef2f2 !important}
-
-
-
-:root{
-  --radius: 10px;
-  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.06);
-}
+/* --- Status colors --- */
+.status-ok{background:#ecfdf5 !important;color:#065f46 !important}
+.status-warn{background:#fff7ed !important;color:#9a3412 !important}
+.status-err{background:#fef2f2 !important;color:#991b1b !important}
 
 @media (prefers-color-scheme: dark){
   :root{
@@ -52,30 +50,9 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);
   .pane.is-active{background:var(--card)}
 }
 
-.hdr{position:sticky; top:0; z-index:2; background:var(--bg); padding-bottom:6px;}
-.btn{
-  cursor:pointer; border:1px solid var(--line); background:var(--card);
-  border-radius:var(--radius); padding:6px 12px; box-shadow: var(--shadow);
-  transition: transform .06s ease, box-shadow .12s ease, filter .12s ease;
-}
-.btn:hover{filter:brightness(.98)}
-.btn:active{transform:translateY(1px)}
-.btn:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
-.btn[disabled]{opacity:.5; cursor:not-allowed}
-
-
-
 .panes{border-radius:0 var(--radius) var(--radius) var(--radius); box-shadow: var(--shadow)}
 
 .card{border-radius:var(--radius); box-shadow: var(--shadow)}
-
-.chip{
-  border:1px solid var(--line); border-radius:999px; padding:2px 10px;
-  background:var(--chip-bg); color:var(--chip-ink); font-weight:600;
-}
-.status-ok{background:#ecfdf5 !important; color:#065f46 !important}
-.status-warn{background:#fff7ed !important; color:#9a3412 !important}
-.status-err{background:#fef2f2 !important; color:#991b1b !important}
 
 /* Responsive tightening at small widths */
 @media (max-width: 420px){

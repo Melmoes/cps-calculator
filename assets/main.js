@@ -208,28 +208,8 @@ async function serverWriteCps(client, cpsFieldId, cpsValue){
 }
 
 
-function wireFieldChangeListeners(client, mapping, settings){
-  const handle = async (id, e) => {
-    const ov = {};
-    if (id === mapping.impactFieldId) ov.impactVal = e.newValue;
-    if (id === mapping.securityFieldId) ov.securityVal = e.newValue;
-    if (id === mapping.overrideFieldId) ov.overrideVal = e.newValue;
-    await refresh(client, mapping, settings, ov);
-  };
-  try{
-    if (mapping.impactFieldId){
-      client.on(`ticket.custom_field_${mapping.impactFieldId}.changed`, (e)=>handle(mapping.impactFieldId, e));
-    }
-    if (mapping.securityFieldId){
-      client.on(`ticket.custom_field_${mapping.securityFieldId}.changed`, (e)=>handle(mapping.securityFieldId, e));
-    }
-    if (mapping.overrideFieldId){
-      client.on(`ticket.custom_field_${mapping.overrideFieldId}.changed`, (e)=>handle(mapping.overrideFieldId, e));
-    }
-  }catch(err){
-    console.warn("wireFieldChangeListeners error", err);
-  }
-}
+// REMOVED: This function was creating duplicate event listeners.
+// Event listeners are now set up in the main initialization block only.
 
   async function mapFields(client){
     dlog('mapFields:start');
@@ -301,7 +281,7 @@ function wireFieldChangeListeners(client, mapping, settings){
     dlog('impactOpts:length', Array.isArray(mapping.impactOpts) ? mapping.impactOpts.length : 'n/a');
     const impactPts  = pointsFromDropdown(impactValRaw, mapping.impactOpts);
     const timePts    = timeOpenPoints(createdAt);
-    const secTrue = (securityValRaw === true) || String(securityValRaw).toLowerCase() === 'yes';
+    const secTrue = (securityValRaw === true) || String(securityValRaw || '').toLowerCase() === 'yes';
     const securityPts= secTrue ? 4 : 0;
     const override   = parseOverride(overrideValRaw);
     const cps = impactPts + urgencyPts + timePts + securityPts + override;
@@ -388,9 +368,7 @@ function wireFieldChangeListeners(client, mapping, settings){
       // Map
       const mapping = await mapFields(client);
     try{ renderConfig(mapping, settings); }catch(_){}
-      wireFieldChangeListeners(client, mapping, settings);
 
-      
       wireRecalc(client, mapping, settings);
 // Listeners
       const deb = (fn, ms=100)=>{ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; };

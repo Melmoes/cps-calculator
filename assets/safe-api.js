@@ -50,15 +50,29 @@
   }
 
   // Debounce map keyed by logical operation, so multiple rapid calls coalesce
+  // Each entry stores: { timeout, promises: [resolve functions] }
   const debouncers = new Map()
   function debounce(key, fn, wait=1000){
-    if (debouncers.has(key)) clearTimeout(debouncers.get(key))
-    return new Promise(resolve=>{
-      const t = setTimeout(async ()=>{
+    let entry = debouncers.get(key)
+    if (entry) {
+      clearTimeout(entry.timeout)
+    } else {
+      entry = { timeout: null, promises: [] }
+      debouncers.set(key, entry)
+    }
+    
+    return new Promise((resolve, reject)=>{
+      entry.promises.push({ resolve, reject })
+      entry.timeout = setTimeout(async ()=>{
+        const allPromises = entry.promises
         debouncers.delete(key)
-        resolve(await fn())
+        try {
+          const result = await fn()
+          allPromises.forEach(p => p.resolve(result))
+        } catch (error) {
+          allPromises.forEach(p => p.reject(error))
+        }
       }, wait)
-      debouncers.set(key, t)
     })
   }
 
